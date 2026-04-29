@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cortex Memory — PPH Hackathon 2026 v7</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --void:#0a0a0c;--void2:#111114;
+  --g:rgba(255,255,255,0.035);--gb:rgba(255,255,255,0.07);--gh:rgba(255,255,255,0.06);--blur:24px;
+  --t1:#ebebf0;--t2:rgba(255,255,255,0.55);--t3:rgba(255,255,255,0.28);
+  --cy:#00e5ff;--cyd:rgba(0,229,255,0.12);
+  --pu:#b388ff;--pud:rgba(179,136,255,0.12);
+  --gn:#69f0ae;--gnd:rgba(105,240,174,0.12);
+  --rd:#ff5252;--rdd:rgba(255,82,82,0.10);
+  --or:#ffab40;--ord:rgba(255,171,64,0.12);
+  --r:16px;--rs:10px;
+  --f:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif;
+  --mono:'SF Mono','Fira Code','Cascadia Code',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--t1);font-family:var(--f);overflow-x:hidden;line-height:1.55}
+::selection{background:var(--cyd);color:var(--cy)}
+.glass{background:var(--g);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid var(--gb);border-radius:var(--r)}
+.glass:hover{background:var(--gh)}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,12,0.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--gb);padding:14px 32px;display:flex;align-items:center;justify-content:space-between}
+nav .logo{font-size:15px;font-weight:600;letter-spacing:-.3px}nav .logo span{color:var(--cy)}
+.nl{display:flex;gap:6px}
+.nl button{background:none;border:1px solid transparent;color:var(--t2);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;font-family:var(--f);letter-spacing:.3px}
+.nl button:hover,.nl button.active{color:var(--t1);border-color:var(--gb);background:var(--g)}
+.nav-hint{color:var(--t3);font-size:11px;letter-spacing:.5px}
+#deck{padding-top:70px}
+.slide{min-height:100vh;display:none;flex-direction:column;justify-content:center;align-items:center;padding:60px 32px}
+.slide.active{display:flex}
+.sp{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:100}
+.sp .dot{width:8px;height:8px;border-radius:50%;background:var(--t3);cursor:pointer;transition:all .2s}
+.sp .dot.active{background:var(--cy);width:24px;border-radius:4px}
+.sc{position:fixed;bottom:30px;right:32px;font-size:12px;color:var(--t3);z-index:100;font-variant-numeric:tabular-nums}
+.si{max-width:980px;width:100%;margin:0 auto;text-align:left}
+.tag{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px}
+.tr{color:var(--rd)}.tc{color:var(--cy)}.tg{color:var(--gn)}.tp{color:var(--pu)}.to{color:var(--or)}
+.si h2{font-size:clamp(28px,4vw,48px);font-weight:700;letter-spacing:-1px;margin-bottom:12px;line-height:1.1}
+.si h2 .dim{color:var(--t2)}
+.lead{font-size:16px;color:var(--t2);line-height:1.65;max-width:760px;margin-bottom:36px}
+.st .badge{padding:8px 20px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;background:var(--cyd);color:var(--cy);border:1px solid rgba(0,229,255,0.2)}
+.st h1{font-size:clamp(36px,5.5vw,66px);font-weight:700;letter-spacing:-2px;text-align:center;line-height:1.08;margin-top:24px}
+.st h1 .acc{background:linear-gradient(135deg,var(--cy),var(--pu));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.st .sub{font-size:clamp(16px,2vw,22px);color:var(--t2);text-align:center;margin-top:12px;font-weight:400}
+.st .ws{margin-top:48px;font-size:13px;color:var(--t3);text-align:center}.st .ws strong{color:var(--t2)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.g4{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{padding:24px;transition:border-color .2s}
+.card .icon{font-size:22px;margin-bottom:10px}
+.card h3{font-size:15px;font-weight:600;margin-bottom:6px}
+.card p{font-size:13px;color:var(--t2);line-height:1.55}
+.card .sb{display:inline-block;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px}
+.narrative{position:relative;overflow:hidden}
+.narrative::before{content:'';position:absolute;top:-1px;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--rd),var(--or),var(--cy))}
+.narrative .n-section{padding:20px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.narrative .n-section:last-child{border-bottom:none}
+.narrative .n-label{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px}
+.narrative .n-text{font-size:15px;color:var(--t2);line-height:1.65}
+.narrative .n-text em{color:var(--t1);font-style:normal;font-weight:600}
+.pillar{padding:28px;text-align:center}
+.pillar .p-icon{font-size:28px;margin-bottom:12px}
+.pillar h3{font-size:15px;font-weight:700;margin-bottom:8px}
+.pillar p{font-size:13px;color:var(--t2);line-height:1.55}
+.story{border-left:3px solid var(--rd);padding-left:20px;margin-bottom:20px}
+.story h3{font-size:16px;font-weight:700;margin-bottom:6px;color:var(--t1)}
+.story p{font-size:14px;color:var(--t2);line-height:1.6}
+.fr{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap}
+.fc{flex:1;min-width:220px;padding:24px;text-align:center}
+.fc .num{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;margin-bottom:14px}
+.fc:nth-child(1) .num{background:var(--cyd);color:var(--cy)}
+.fc:nth-child(3) .num{background:var(--pud);color:var(--pu)}
+.fc:nth-child(5) .num{background:var(--gnd);color:var(--gn)}
+.fc h3{font-size:14px;font-weight:600;margin-bottom:6px}
+.fc p{font-size:12px;color:var(--t2);line-height:1.5}
+.fa{display:flex;align-items:center;color:var(--t3);font-size:22px;padding:0 2px}
+.dash-cols{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+.dash-features{list-style:none;padding:0}
+.dash-features li{padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:14px;color:var(--t2);display:flex;align-items:flex-start;gap:10px}
+.dash-features li strong{color:var(--t1);display:block;margin-bottom:2px}
+.dash-features .feat-icon{font-size:18px;flex-shrink:0;margin-top:2px}
+.mini-dash{padding:20px;font-size:12px}
+.mini-dash .md-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--gb)}
+.mini-dash .md-header h4{font-size:14px;font-weight:600}.mini-dash .md-header h4 span{color:var(--cy)}
+.mini-dash .md-stats{display:flex;gap:20px;margin-bottom:16px;font-size:12px;color:var(--t2)}
+.mini-dash .md-stats .sv{color:var(--t1);font-weight:700;font-variant-numeric:tabular-nums}
+.mini-dash .md-live-title{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t2);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.mini-dash .md-live-title .pulse{width:6px;height:6px;border-radius:50%;background:var(--gn);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.mini-dash .md-item{padding:10px 12px;border-radius:var(--rs);border:1px solid var(--gb);background:rgba(255,255,255,0.015);margin-bottom:8px;font-size:11px}
+.mini-dash .md-item .md-item-title{font-weight:600;color:var(--t1);margin-bottom:3px}
+.mini-dash .md-item .md-item-meta{color:var(--t3)}
+.meth{padding:20px 24px;margin-bottom:16px;font-size:14px;color:var(--t2);line-height:1.65;border-left:3px solid var(--cy);background:rgba(0,229,255,0.03);border-radius:0 var(--rs) var(--rs) 0}
+.meth strong{color:var(--t1)}
+.mr{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.mc{padding:32px 28px;min-width:250px;flex:1;max-width:320px;text-align:center;position:relative;overflow:hidden}
+.mc::before{content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:50%;height:2px;border-radius:0 0 4px 4px}
+.mc:nth-child(1)::before{background:linear-gradient(90deg,transparent,var(--cy),transparent)}
+.mc:nth-child(2)::before{background:linear-gradient(90deg,transparent,var(--pu),transparent)}
+.mc:nth-child(3)::before{background:linear-gradient(90deg,transparent,var(--gn),transparent)}
+.mc .big{font-size:clamp(42px,5vw,60px);font-weight:800;letter-spacing:-3px;line-height:1;margin-bottom:6px}
+.mc:nth-child(1) .big{color:var(--cy)}.mc:nth-child(2) .big{color:var(--pu)}.mc:nth-child(3) .big{color:var(--gn)}
+.mc .label{font-size:15px;font-weight:600;margin-bottom:4px}
+.mc .raw{font-size:12px;color:var(--t3);margin-bottom:6px;font-variant-numeric:tabular-nums}
+.mc .desc{font-size:12px;color:var(--t2);line-height:1.45}
+.mc .savings{margin-top:8px;font-size:11px;color:var(--cy);font-weight:600}
+.note-box{text-align:left;margin-bottom:28px;padding:14px 20px;border-radius:var(--rs);background:rgba(0,229,255,0.04);border:1px solid rgba(0,229,255,0.15);font-size:13px;color:var(--cy);line-height:1.55}
+.note-box strong{color:var(--cy)}
+.econ{text-align:left;margin-bottom:28px;padding:16px 20px;border-radius:var(--rs);background:rgba(255,255,255,0.02);border:1px solid var(--gb);font-size:12px;color:var(--t2);line-height:1.7;font-family:var(--mono)}
+.econ strong{color:var(--t1)}
+/* Security posture card */
+.sec-card{margin-top:16px;padding:14px 18px;border-radius:var(--rs);border:1px solid rgba(105,240,174,0.15);background:rgba(105,240,174,0.03);font-size:12px;color:var(--t2);line-height:1.55}
+.sec-card strong{color:var(--gn)}
+#demo{display:none;padding-top:70px;min-height:100vh}
+.dh{padding:40px 32px 20px;text-align:center}
+.dh h2{font-size:28px;font-weight:700;letter-spacing:-.5px;margin-bottom:8px}
+.dh p{color:var(--t2);font-size:14px}
+.tb{display:flex;gap:6px;justify-content:center;padding:0 32px;margin-bottom:24px;flex-wrap:wrap}
+.tb button{background:var(--g);border:1px solid var(--gb);color:var(--t2);padding:10px 16px;border-radius:var(--rs);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;font-family:var(--f);letter-spacing:.3px}
+.tb button:hover{color:var(--t1);background:var(--gh)}
+.tb button.active{color:var(--cy);border-color:rgba(0,229,255,0.3);background:var(--cyd)}
+.tp-panel{display:none;padding:0 32px;max-width:1300px;margin:0 auto}.tp-panel.active{display:block}
+.play-row{text-align:center;margin-bottom:24px}
+.pbtn{background:var(--cyd);border:1px solid rgba(0,229,255,0.3);color:var(--cy);padding:12px 32px;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:var(--f);letter-spacing:.3px}
+.pbtn:hover{background:rgba(0,229,255,0.2);border-color:var(--cy)}.pbtn:active{transform:scale(.97)}.pbtn:disabled{opacity:.4;cursor:not-allowed}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px}
+.ide{overflow:hidden}
+.ide .ih{padding:12px 16px;border-bottom:1px solid var(--gb);display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.ide .ih .sd{width:8px;height:8px;border-radius:50%}
+.ide.bad .ih{color:var(--rd)}.ide.bad .sd{background:var(--rd)}
+.ide.good .ih{color:var(--gn)}.ide.good .sd{background:var(--gn)}
+.term{padding:20px;font-family:var(--mono);font-size:12px;line-height:1.8;min-height:360px;max-height:420px;overflow-y:auto;color:var(--t2);scroll-behavior:smooth}
+.term .prompt{color:var(--t3)}.term .cmd{color:var(--t1)}.term .error{color:var(--rd)}.term .success{color:var(--gn)}.term .warn{color:var(--or)}.term .dim{color:var(--t3)}
+.term .intercept{color:var(--cy);font-weight:600;text-shadow:0 0 8px rgba(0,229,255,0.4);animation:glowPulse 2s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{text-shadow:0 0 8px rgba(0,229,255,0.4)}50%{text-shadow:0 0 16px rgba(0,229,255,0.7),0 0 32px rgba(0,229,255,0.2)}}
+.term .ln{margin-bottom:2px;opacity:0;animation:fi .3s ease forwards}
+@keyframes fi{to{opacity:1}}
+.live-dash{max-width:900px;margin:0 auto}
+.ld-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--gb)}
+.ld-header h3{font-size:20px;font-weight:700}.ld-header h3 span{color:var(--cy)}
+.ld-stats{display:flex;gap:24px;font-size:13px;color:var(--t2)}.ld-stats .sv{color:var(--t1);font-weight:700}
+.ld-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.ld-panel{padding:24px}
+.ld-panel-title{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t2);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.ld-panel-title .pulse{width:6px;height:6px;border-radius:50%;background:var(--gn);animation:pulse 2s ease-in-out infinite}
+.ld-strategy{padding:14px 16px;border-radius:var(--rs);border:1px solid var(--gb);background:rgba(255,255,255,0.015);margin-bottom:12px;transition:border-color .2s}
+.ld-strategy:hover{border-color:rgba(0,229,255,0.3)}
+.ld-strategy .ls-badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
+.ld-strategy .ls-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.ld-strategy .ls-meta{font-size:11px;color:var(--t3);display:flex;gap:12px}
+.ld-store-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:13px}
+.ld-store-row .lsr-label{color:var(--t3)}.ld-store-row .lsr-value{color:var(--t1);font-weight:600;font-variant-numeric:tabular-nums}
+.demo-disc{text-align:center;padding:20px;color:var(--t3);font-size:11px;letter-spacing:.5px;margin-top:20px;border-top:1px solid var(--gb)}
+.demo-disc code{color:var(--t2)}
+@media(max-width:900px){.g2,.g3,.g4,.split,.dash-cols,.ld-grid{grid-template-columns:1fr}.mr{flex-direction:column;align-items:center}.fa{display:none}.fr{flex-direction:column}}
+@media(max-width:600px){nav{padding:12px 16px}.slide{padding:40px 16px}.split{padding:0}.tp-panel{padding:0 16px}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo"><img src="Cortex Memory.png" alt="" style="width:28px;height:28px;object-fit:cover;border-radius:50%;vertical-align:middle;margin-right:6px"><span>Cortex</span> Memory</div>
+  <div class="nl"><button class="active" onclick="sec('deck',this)">Presentation</button><button onclick="sec('demo',this)">Live Demo</button></div>
+  <div class="nav-hint">← → Navigate</div>
+</nav>
+
+<section id="deck">
+
+<!-- Slide 0: Title -->
+<div class="slide st active" data-slide="0">
+  <img src="Cortex Memory.png" alt="Cortex Memory Logo" style="width:200px;height:200px;object-fit:cover;border-radius:50%;margin-bottom:24px;box-shadow:0 0 60px rgba(0,229,255,0.12),0 0 120px rgba(179,136,255,0.06)">
+  <div class="badge">Prompt 03 · Drive Growth with Agentic AI</div>
+  <h1><span class="acc">Cortex Memory:</span><br>Cognitive Memory Manager</h1>
+  <p class="sub">Connecting AI Investments to Measurable ROI</p>
+  <p class="ws"><strong>Workstream 3:</strong> Connect AI investments to business outcomes — showing measurable ROI,<br>compute reduction, and accelerated value using AWS &amp; Kiro.</p>
+</div>
+
+<!-- Slide 1: Origin Story [P3.3 — sharpened hook] -->
+<div class="slide" data-slide="1">
+  <div class="si">
+    <div class="tag tr">The Origin Story</div>
+    <h2>The 5-Hour <span class="dim">Wait</span></h2>
+    <p class="lead">After building 50 to 70 different applications, a painful pattern emerged. When a coding agent gets stuck, it doesn't learn. It just burns.</p>
+    <div class="narrative glass" style="padding:28px">
+      <div class="n-section">
+        <div class="n-label" style="color:var(--rd)">The Pain</div>
+        <div class="n-text"><em>5 hours. 47 retries</em> of the same failing publish command against a port already bound. Roughly <em>$3.20 in Bedrock tokens</em>, by my back-of-the-envelope. Zero learning between attempts. The agent didn't know the port was blocked. It didn't remember it had already tried and failed.</div>
+      </div>
+      <div class="n-section">
+        <div class="n-label" style="color:var(--or)">The Frustration</div>
+        <div class="n-text">This wasn't a one-off. Across 50+ projects, the same pattern: agents rediscovering the same deployment traps, the same auth misconfigurations, the same build failures — <em>session after session, dollar after dollar</em>.</div>
+      </div>
+      <div class="n-section">
+        <div class="n-label" style="color:var(--cy)">The Genesis</div>
+        <div class="n-text">That was the moment Cortex Memory was born. <em>Future sessions must natively benefit from past mistakes.</em> Not through manual documentation. Not through prompt engineering. Through automatic, invisible memory infrastructure.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 2: Executive Reality [P3.1 — network effects pillar] -->
+<div class="slide" data-slide="2">
+  <div class="si">
+    <div class="tag tc">The Executive Reality</div>
+    <h2>AI Must Be a <span class="dim">Compounding Asset</span></h2>
+    <p class="lead">When executives ask for ROI, they aren't looking for "number of invocations." They want proof that the AI ecosystem gets inherently smarter, maximizing <em style="color:var(--cy);font-style:normal">Return on Tokens</em> and <em style="color:var(--pu);font-style:normal">Return on Intelligence</em>.</p>
+    <div class="g3">
+      <div class="pillar glass">
+        <div class="p-icon">💰</div>
+        <h3>Compute Cost Reduction</h3>
+        <p>Saving Bedrock tokens by not paying to repeat known mistakes. We aren't maximizing our <em style="color:var(--cy);font-style:normal">Return on Tokens</em> if we pay for the exact same LLM inference repeatedly.</p>
+      </div>
+      <div class="pillar glass">
+        <div class="p-icon">🌐</div>
+        <h3>Network Effects</h3>
+        <p>One developer solves a problem; 99 colleagues never re-encounter it. Memory captured by anyone benefits everyone. The store gets denser and more valuable with every session — the opposite of typical software depreciation.</p>
+      </div>
+      <div class="pillar glass">
+        <div class="p-icon">🧠</div>
+        <h3>Institutional Memory</h3>
+        <p>A junior developer's agent instantly knows the constraints a senior solved last week. Every solved problem maximizes your <em style="color:var(--pu);font-style:normal">Return on Intelligence</em>.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 3: Training -->
+<div class="slide" data-slide="3">
+  <div class="si">
+    <div class="tag tp">How We Trained It</div>
+    <h2>Real-World <span class="dim">Aggregation</span></h2>
+    <p class="lead">Cortex Memory wasn't trained on synthetic data. It aggregates knowledge across distributed development meshes and complex portfolios.</p>
+    <div class="g4">
+      <div class="card glass"><div class="sb" style="background:var(--cyd);color:var(--cy)">Infrastructure</div><h3>The Environment Mesh</h3><p>Continuously captured across a Tailscale-networked fleet: headless Ubuntu server, MacBook Pro M4, and Windows Omen machine.</p></div>
+      <div class="card glass"><div class="sb" style="background:var(--pud);color:var(--pu)">Data</div><h3>Portfolio Ingestion</h3><p>Ingested 100+ dense session transcripts from real builds: Helix (Next.js generator), VibePulse, ForeSight Auto, and MCP Gateway Registry.</p></div>
+      <div class="card glass"><div class="sb" style="background:var(--gnd);color:var(--gn)">Capture</div><h3>Local Interception</h3><p>Kiro CLI/IDE natively captures stderr, stdout, and agent reasoning traces locally, streaming to a centralized ChromaDB staging store.</p></div>
+      <div class="card glass"><div class="sb" style="background:var(--ord);color:var(--or)">Intelligence</div><h3>Cross-Project Generalization</h3><p>Opus 4.7 distills nodes, separating project-specific quirks from team-wide standards (e.g., enforcing 'Liquid Glass' UI language).</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 4: Differentiation [P2.1 — NEW] -->
+<div class="slide" data-slide="4">
+  <div class="si">
+    <div class="tag tp">Differentiation</div>
+    <h2>Why a <span class="dim">Reasoning DAG</span>, Not a Notes File</h2>
+    <p class="lead">Most "AI memory" tools store final artifacts. Cortex stores the reasoning trajectory — including the wrong turns.</p>
+    <div class="g3">
+      <div class="card glass">
+        <h3>Notes &amp; Rules Files</h3>
+        <p style="font-size:11px;color:var(--t3);margin-bottom:8px">Cursor rules, CLAUDE.md, memory banks</p>
+        <p>Static, hand-curated, human-authored. Captures preferences. Does not capture why a path failed, or compound automatically.</p>
+      </div>
+      <div class="card glass">
+        <h3>Episodic Memory</h3>
+        <p style="font-size:11px;color:var(--t3);margin-bottom:8px">Mem0, Letta, Zep</p>
+        <p>Stores conversation history. Optimized for chat assistants. Not designed around debugging trajectories or typed reasoning nodes.</p>
+      </div>
+      <div class="card glass" style="border-color:var(--cy)">
+        <h3>Cortex Reasoning DAG</h3>
+        <p style="font-size:11px;color:var(--cy);margin-bottom:8px">This submission</p>
+        <p>Typed nodes (HYPOTHESIS → DEAD_END → SOLUTION) with causal edges. Captures <em style="color:var(--t1);font-style:normal">negative knowledge</em> — the paths that didn't work — which is what LLMs systematically underlearn from training data biased toward successful outcomes.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 5: Universal MCP -->
+<div class="slide" data-slide="5">
+  <div class="si">
+    <div class="tag tc">Universal Integration</div>
+    <h2>MCP Memory <span class="dim">Server</span></h2>
+    <p class="lead">Cortex Memory is not vendor-locked. It is a standard MCP memory server that continuously learns and enhances performance universally.</p>
+    <div class="fr">
+      <div class="fc glass"><div class="num">1</div><h3>Universal Tool Integration</h3><p>Plugs instantly into ANY modern tool — Kiro IDE, Cursor, VS Code, Claude Code, or custom CLIs.</p></div>
+      <div class="fa">→</div>
+      <div class="fc glass"><div class="num">2</div><h3>Intercept &amp; Search</h3><p>Agent states intention. Cortex Memory intercepts and searches ChromaDB for matching dead ends and proven solutions.</p></div>
+      <div class="fa">→</div>
+      <div class="fc glass"><div class="num">3</div><h3>Inject Context</h3><p>Agent executes the correct path immediately, preventing expensive token burn before it happens.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 6: Dashboard & Trust [P1.2 — security posture] -->
+<div class="slide" data-slide="6">
+  <div class="si">
+    <div class="tag to">Enterprise Trust</div>
+    <h2>The Live <span class="dim">Dashboard</span></h2>
+    <p class="lead">Growth requires trust. Cortex Memory provides a real-time telemetry dashboard for Tech Leads to audit what the AI is learning and manually control the distillation process.</p>
+    <div class="dash-cols">
+      <div>
+        <ul class="dash-features">
+          <li><span class="feat-icon">📡</span><div><strong>Live Context Stream</strong>See which strategies are being injected into the agent's context in real-time.</div></li>
+          <li><span class="feat-icon">📊</span><div><strong>ChromaDB Store Metrics</strong>Monitor node counts, session coverage, strategy confidence levels, and extraction noise ratios.</div></li>
+          <li><span class="feat-icon">⚙️</span><div><strong>Manual Distillation</strong>Tech Leads can trigger on-demand distillation, approve/reject strategies before they reach the team store.</div></li>
+        </ul>
+        <div class="sec-card">
+          <strong>🔒 Security Posture:</strong> Capture-time secret redaction · Customer-defined allowlists · Embeddings stay in VPC · Bedrock-only egress on redacted text.
+        </div>
+      </div>
+      <div class="mini-dash glass">
+        <div class="md-header"><h4>🧠 <span>Cortex</span> Memory</h4><span style="font-size:11px;color:var(--t3)">cmm-b73af8</span></div>
+        <div class="md-stats"><div>Nodes: <span class="sv">381</span></div><div>Strategies: <span class="sv">5</span></div><div>Sessions: <span class="sv">17</span></div></div>
+        <div class="md-live-title"><div class="pulse"></div> Live Context Stream</div>
+        <div class="md-item"><div class="md-item-title">Scale Postgres via pgbouncer, not pool_size</div><div class="md-item-meta">Relevance: 0.60 · Confidence: 60% · complex</div></div>
+        <div class="md-item"><div class="md-item-title">JWT key mismatch across auth layers</div><div class="md-item-meta">Relevance: 0.98 · Confidence: 98% · trivial</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 7: Honest Scope [P2.2 — NEW] -->
+<div class="slide" data-slide="7">
+  <div class="si">
+    <div class="tag to">Honest Scope</div>
+    <h2>What Cortex <span class="dim">Doesn't</span> Do</h2>
+    <p class="lead">Calibrating the claim is a feature, not a weakness.</p>
+    <div class="g3">
+      <div class="card glass">
+        <h3>Boilerplate Tasks</h3>
+        <p>Writing a CRUD endpoint, scaffolding a component. These don't burn tokens on dead ends. Cortex provides negligible value here — and that's fine.</p>
+      </div>
+      <div class="card glass">
+        <h3>Genuinely Novel Problems</h3>
+        <p>First-time encounters with new frameworks or unique bugs. Cortex starts cold; value compounds with use. Day-1 ROI on a greenfield codebase is near zero.</p>
+      </div>
+      <div class="card glass">
+        <h3>Replacing Judgment</h3>
+        <p>Strategies are suggestions, not directives. The agent can override. Memory makes the agent informed, not obedient. Over-reliance is mitigated by confidence decay and explicit-conflict surfacing.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 8: ROI [P1.3 Option B + P1.4 unit economics] -->
+<div class="slide" data-slide="8">
+  <div class="si" style="text-align:center">
+    <div class="tag tg">Measured Results</div>
+    <h2>A/B Controlled <span class="dim">Comparison</span></h2>
+    <div class="meth glass" style="text-align:left;margin-top:24px">
+      <strong>Methodology:</strong> Controlled A/B test on a complex architectural bug (<strong>MCP Gateway IAM routing</strong>) — the exact type of critical decision where agents typically burn tokens guessing. Baseline Agent (no memory) vs. Cortex Memory-Assisted Agent.
+    </div>
+    <div class="note-box">
+      <strong>Scope:</strong> These efficiency gains (60–75%) apply to <strong>critical-path debugging sessions</strong> — architectural bugs, infra debugging, auth flows — where token burn concentrates. Boilerplate tasks see negligible benefit and are out of scope. Cortex targets the sessions that cost the most.
+    </div>
+    <div class="mr">
+      <div class="mc glass">
+        <div class="big">75%</div>
+        <div class="label">Smaller Session</div>
+        <div class="raw">1,127 KB → 281 KB</div>
+        <div class="desc">Critical-path Bedrock token reduction per task.</div>
+      </div>
+      <div class="mc glass">
+        <div class="big">61%</div>
+        <div class="label">Fewer Messages</div>
+        <div class="raw">119 → 46 messages</div>
+        <div class="desc">Accelerates developer time-to-resolution.</div>
+      </div>
+      <div class="mc glass">
+        <div class="big">71%</div>
+        <div class="label">Fewer Files Written</div>
+        <div class="raw">7 → 2 files</div>
+        <div class="desc">Eliminates over-engineering and blast radius.</div>
+      </div>
+    </div>
+    <div class="econ" style="margin-top:24px">
+<strong>Unit Economics (Bedrock Sonnet 4.5 pricing)</strong>
+119 msgs × ~8K tokens ≈ 950K tokens/task
+250 critical tasks/dev/year × $3/1M tokens
+= ~$713 baseline inference/dev/year
+75% reduction on critical-path = <strong>~$535 saved/dev/year</strong>
+Distillation cost: ~5K tokens × Opus = $0.075/strategy
+<strong>Breakeven: a single reuse covers distillation.</strong>
+    </div>
+  </div>
+</div>
+
+</section>
+<div class="sp" id="dots"></div>
+<div class="sc" id="ctr">1 / 9</div>
+
+<!-- DEMO — 5 TABS -->
+<section id="demo">
+  <div class="dh"><h2>⚡ Interactive Demo — 5 Scenarios</h2><p>Standard Agent vs. Kiro + Cortex Memory — same bugs, radically different outcomes</p></div>
+  <div class="tb">
+    <button class="active" onclick="showDemo(0,this)">1: Blocked Port</button>
+    <button onclick="showDemo(1,this)">2: Postgres Scaling</button>
+    <button onclick="showDemo(2,this)">3: .env Trap</button>
+    <button onclick="showDemo(3,this)">4: Auth Bug</button>
+    <button onclick="showDemo(4,this)">5: Live Dashboard</button>
+  </div>
+  <div class="tp-panel active" id="demo-0"><div class="play-row"><button class="pbtn" onclick="runScenario(0)">▶ Run Demo</button></div><div class="split"><div class="ide bad glass"><div class="ih"><div class="sd"></div>Standard Agent — No Memory</div><div class="term" id="t0-bad"></div></div><div class="ide good glass"><div class="ih"><div class="sd"></div>Kiro + Cortex Memory</div><div class="term" id="t0-good"></div></div></div></div>
+  <div class="tp-panel" id="demo-1"><div class="play-row"><button class="pbtn" onclick="runScenario(1)">▶ Run Demo</button></div><div class="split"><div class="ide bad glass"><div class="ih"><div class="sd"></div>Standard Agent — No Memory</div><div class="term" id="t1-bad"></div></div><div class="ide good glass"><div class="ih"><div class="sd"></div>Kiro + Cortex Memory</div><div class="term" id="t1-good"></div></div></div></div>
+  <div class="tp-panel" id="demo-2"><div class="play-row"><button class="pbtn" onclick="runScenario(2)">▶ Run Demo</button></div><div class="split"><div class="ide bad glass"><div class="ih"><div class="sd"></div>Standard Agent — No Memory</div><div class="term" id="t2-bad"></div></div><div class="ide good glass"><div class="ih"><div class="sd"></div>Kiro + Cortex Memory</div><div class="term" id="t2-good"></div></div></div></div>
+  <div class="tp-panel" id="demo-3"><div class="play-row"><button class="pbtn" onclick="runScenario(3)">▶ Run Demo</button></div><div class="split"><div class="ide bad glass"><div class="ih"><div class="sd"></div>Standard Agent — No Memory</div><div class="term" id="t3-bad"></div></div><div class="ide good glass"><div class="ih"><div class="sd"></div>Kiro + Cortex Memory</div><div class="term" id="t3-good"></div></div></div></div>
+  <!-- Tab 5: Dashboard [P3.2 — demo-mode disclaimer] -->
+  <div class="tp-panel" id="demo-4">
+    <div class="live-dash">
+      <div class="ld-header"><h3>🧠 <span>Cortex</span> Memory — Live Dashboard</h3><div class="ld-stats"><div>Project: <span class="sv">cmm-b73af8</span></div></div></div>
+      <div class="ld-grid">
+        <div class="ld-panel glass">
+          <div class="ld-panel-title"><div class="pulse"></div> Live Context Stream</div>
+          <div class="ld-strategy"><div class="ls-badge" style="background:var(--cyd);color:var(--cy)">Strategy</div><div class="ls-title">Scale Postgres connections via pgbouncer, not pool_size</div><div class="ls-meta"><span>Confidence: 60%</span><span>Complexity: complex</span><span>Session: test_signal</span></div></div>
+          <div class="ld-strategy"><div class="ls-badge" style="background:var(--pud);color:var(--pu)">Strategy</div><div class="ls-title">Helix CLI v12.x: Auth, Postgres, Templates &amp; Dashboard</div><div class="ls-meta"><span>Confidence: 98%</span><span>Complexity: standard</span><span>Session: d41f8f9a</span></div></div>
+          <div class="ld-strategy"><div class="ls-badge" style="background:var(--gnd);color:var(--gn)">Strategy</div><div class="ls-title">execa CommonJS import + npm publish workflow</div><div class="ls-meta"><span>Confidence: 95%</span><span>Complexity: trivial</span><span>Session: d41f8f9a</span></div></div>
+          <div class="ld-strategy"><div class="ls-badge" style="background:var(--ord);color:var(--or)">Strategy</div><div class="ls-title">JWT signing/verification key mismatch across auth layers</div><div class="ls-meta"><span>Confidence: 40%</span><span>Complexity: trivial</span><span>Session: synthetic-debug-01</span></div></div>
+          <div class="ld-strategy"><div class="ls-badge" style="background:var(--cyd);color:var(--cy)">Strategy</div><div class="ls-title">Next.js SaaS Generator: Auth + Postgres + Deploy Pipeline</div><div class="ls-meta"><span>Confidence: 98%</span><span>Complexity: trivial</span><span>Session: d41f8f9a</span></div></div>
+        </div>
+        <div class="ld-panel glass">
+          <div class="ld-panel-title">Store Overview</div>
+          <div class="ld-store-row"><span class="lsr-label">Total Nodes</span><span class="lsr-value">381</span></div>
+          <div class="ld-store-row"><span class="lsr-label">Strategic Snapshots</span><span class="lsr-value">5</span></div>
+          <div class="ld-store-row"><span class="lsr-label">Sessions Ingested</span><span class="lsr-value">17</span></div>
+          <div class="ld-store-row"><span class="lsr-label">Architectural Insights</span><span class="lsr-value">23</span></div>
+          <div class="ld-store-row"><span class="lsr-label">Known Pitfalls</span><span class="lsr-value">48</span></div>
+          <div class="ld-store-row"><span class="lsr-label">Extraction Model</span><span class="lsr-value">Sonnet 4.5</span></div>
+          <div class="ld-store-row"><span class="lsr-label">Distillation Model</span><span class="lsr-value">Opus 4.7</span></div>
+          <div class="ld-store-row"><span class="lsr-label">Vector Store</span><span class="lsr-value">ChromaDB (local)</span></div>
+          <div class="ld-store-row"><span class="lsr-label">Embedding Model</span><span class="lsr-value">all-MiniLM-L6-v2</span></div>
+          <div class="ld-store-row"><span class="lsr-label">Project ID</span><span class="lsr-value">cmm-b73af8</span></div>
+          <div style="margin-top:20px;text-align:center"><button class="pbtn" style="width:100%" onclick="this.textContent='✓ Distillation triggered';this.style.background='var(--gnd)';this.style.color='var(--gn)';this.style.borderColor='rgba(105,240,174,0.3)'">⚡ Manual Distill</button></div>
+        </div>
+      </div>
+      <div class="demo-disc">Demo mode — populated from a snapshot of the actual Cortex store (<code>cmm-b73af8</code>). Production dashboard polls <code>GET /stats</code> and <code>GET /injections</code> live from the MCP server.</div>
+    </div>
+  </div>
+</section>
+
+<script>
+function sec(id,btn){
+  document.getElementById('deck').style.display=id==='deck'?'block':'none';
+  document.getElementById('demo').style.display=id==='demo'?'block':'none';
+  document.querySelector('.sp').style.display=id==='deck'?'flex':'none';
+  document.getElementById('ctr').style.display=id==='deck'?'block':'none';
+  document.querySelectorAll('.nl button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+const total=9;let cur=0;
+function buildDots(){const c=document.getElementById('dots');c.innerHTML='';for(let i=0;i<total;i++){const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>go(i);c.appendChild(d)}}
+buildDots();
+function go(n){
+  cur=Math.max(0,Math.min(n,total-1));
+  document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.slide')[cur].classList.add('active');
+  document.querySelectorAll('#dots .dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+  document.getElementById('ctr').textContent=`${cur+1} / ${total}`;
+}
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('deck').style.display==='none')return;
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(cur+1)}
+  if(e.key==='ArrowLeft'){e.preventDefault();go(cur-1)}
+});
+function showDemo(idx,btn){
+  document.querySelectorAll('.tp-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tb button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('demo-'+idx).classList.add('active');
+  btn.classList.add('active');
+}
+const scenarios=[
+{bad:[{c:'prompt',t:'$ user: Start the dev server'},{c:'cmd',t:'> npm run dev'},{c:'error',t:'✗ Error: listen EADDRINUSE: port 3000 already in use'},{c:'cmd',t:'> Retrying npm run dev...'},{c:'error',t:'✗ Error: listen EADDRINUSE: port 3000 already in use'},{c:'cmd',t:'> Maybe a different port? Trying PORT=3001...'},{c:'error',t:'✗ Error: API_URL hardcoded to localhost:3000 in 4 files'},{c:'cmd',t:'> Reverting. Retrying npm run dev on 3000...'},{c:'error',t:'✗ Error: listen EADDRINUSE: port 3000 already in use'},{c:'cmd',t:'> Reading package.json for start scripts...'},{c:'cmd',t:'> Reading next.config.js for port config...'},{c:'cmd',t:'> Trying to find what process is on 3000...'},{c:'cmd',t:'> lsof -i :3000 ... PID 51243 node'},{c:'warn',t:'> [12 messages · 5 retries · still blocked]'},{c:'cmd',t:'> kill 51243 && npm run dev'},{c:'success',t:'✓ Server started (after 14 messages of flailing)'}],good:[{c:'prompt',t:'$ user: Start the dev server'},{c:'intercept',t:'⚡ Cortex Intercept: Known pitfall found'},{c:'intercept',t:'  Port 3000 blocked by lingering node processes.'},{c:'intercept',t:'  ✓ Resolution: Run kill-port 3000 before starting.'},{c:'cmd',t:''},{c:'cmd',t:'> npx kill-port 3000'},{c:'success',t:'✓ Port 3000 freed'},{c:'cmd',t:'> npm run dev'},{c:'success',t:'✓ Server running on http://localhost:3000'},{c:'success',t:'✓ Done. 2 steps. 0 retries.'}]},
+{bad:[{c:'prompt',t:'$ user: Fix the Postgres connection timeout'},{c:'cmd',t:'> Reading database.py... pool_size=5'},{c:'cmd',t:'> Hypothesis: pool is too small for production load'},{c:'warn',t:'> Setting pool_size=50...'},{c:'cmd',t:'> Restarting application server...'},{c:'error',t:'✗ MemoryError: unable to allocate 2.1GB for connection buffers'},{c:'cmd',t:'> Trying pool_size=30...'},{c:'error',t:'✗ MemoryError: unable to allocate 1.3GB'},{c:'cmd',t:'> Reading SQLAlchemy docs on pool_timeout...'},{c:'cmd',t:'> Setting pool_timeout=60, pool_pre_ping=True...'},{c:'error',t:'✗ TimeoutError: QueuePool limit reached (still)'},{c:'cmd',t:'> Reading frontend/api/routes.ts...'},{c:'cmd',t:'> Reading docker-compose.yml...'},{c:'warn',t:'> [38 messages · context 67% full · 1,127 KB]'},{c:'dim',t:'> Still investigating...'},{c:'error',t:'✗ No resolution. Session abandoned.'}],good:[{c:'prompt',t:'$ user: Fix the Postgres connection timeout'},{c:'intercept',t:'⚡ Cortex Intercept: Searching past dead ends...'},{c:'intercept',t:'⚡ MATCH (60% confidence):'},{c:'intercept',t:'  Strategy: "Scale via pgbouncer, not pool_size"'},{c:'intercept',t:'  ❌ Dead end: pool_size=50 → OOM'},{c:'intercept',t:'  ✓ Proven: transaction-level multiplexing'},{c:'cmd',t:''},{c:'cmd',t:'> Creating infra/pgbouncer/pgbouncer.ini'},{c:'cmd',t:'  pool_mode = transaction, max_client_conn = 200'},{c:'cmd',t:'> Updating DATABASE_URL → port 6432'},{c:'success',t:'✓ 2 files changed. Tests passing.'},{c:'success',t:'✓ Latency: 2,000ms → 50ms'},{c:'intercept',t:'⚡ Cortex Intercept: Logging solution to team memory...'},{c:'success',t:'✓ Done. 2 messages. 0 dead ends explored.'}]},
+{bad:[{c:'prompt',t:'$ user: Keycloak admin login is failing'},{c:'cmd',t:'> Reading docker-compose.yml...'},{c:'cmd',t:'> Checking INITIAL_ADMIN_PASSWORD in .env...'},{c:'cmd',t:'> Value: "your-secure-keycloak-admin-password"'},{c:'cmd',t:'> That looks like a real password. Trying it...'},{c:'error',t:'✗ 401 Unauthorized: Invalid credentials'},{c:'cmd',t:'> Maybe case-sensitive? Trying variations...'},{c:'error',t:'✗ 401 Unauthorized'},{c:'cmd',t:'> Checking if Keycloak uses a different realm...'},{c:'cmd',t:'> Trying kcadm.sh to reset password...'},{c:'error',t:'✗ kcadm.sh: shell escaping issue with "!" char'},{c:'cmd',t:'> Reading Keycloak docs on admin bootstrap...'},{c:'warn',t:'> [22 messages · still no access]'},{c:'dim',t:'> Investigating environment variable precedence...'}],good:[{c:'prompt',t:'$ user: Keycloak admin login is failing'},{c:'intercept',t:'⚡ Cortex Intercept: 2 pitfalls found (HIGH severity)'},{c:'intercept',t:'  ❌ Pitfall: .env contains PLACEHOLDER values'},{c:'intercept',t:'     "your-secure-keycloak-admin-password" is literal'},{c:'intercept',t:'  ❌ Pitfall: kcadm.sh fails with "!" in passwords'},{c:'intercept',t:'  ✓ Resolution: Update .env, use REST API not kcadm'},{c:'cmd',t:''},{c:'cmd',t:'> Updating .env: INITIAL_ADMIN_PASSWORD=SecurePass2026'},{c:'cmd',t:'> docker compose down && docker compose up -d'},{c:'cmd',t:'> curl -X POST /auth/realms/master/protocol/openid...'},{c:'success',t:'✓ 200 OK. Admin token received.'},{c:'success',t:'✓ Done. 4 messages. Known trap avoided.'}]},
+{bad:[{c:'prompt',t:'$ user: JWT auth is failing on all protected routes'},{c:'cmd',t:'> Reading .env for JWT_SECRET...'},{c:'cmd',t:'> JWT_SECRET is set. Looks correct.'},{c:'cmd',t:'> Hypothesis: token is expired or malformed'},{c:'cmd',t:'> Decoding token... payload looks valid'},{c:'cmd',t:'> Checking middleware/auth.ts...'},{c:'cmd',t:'> Checking if CORS is stripping the header...'},{c:'error',t:'✗ Still 401 on all routes'},{c:'cmd',t:'> Reading auth/login.ts... uses SECRET_KEY'},{c:'cmd',t:'> Reading middleware/verify.ts... uses JWT_SECRET'},{c:'cmd',t:'> Wait — those are DIFFERENT constants!'},{c:'warn',t:'> [28 messages to discover key mismatch]'},{c:'cmd',t:'> Unifying to single SECRET_KEY...'},{c:'success',t:'✓ Fixed after 28 messages of investigation'}],good:[{c:'prompt',t:'$ user: JWT auth is failing on all protected routes'},{c:'intercept',t:'⚡ Cortex Intercept: HIGH-confidence match (98%)'},{c:'intercept',t:'  Strategy: "JWT key mismatch across auth layers"'},{c:'intercept',t:'  ❌ Dead end: checking env vars / CORS / expiry'},{c:'intercept',t:'  ✓ Root cause: login.ts signs with OLD_SECRET_KEY,'},{c:'intercept',t:'     middleware verifies with SECRET_KEY'},{c:'cmd',t:''},{c:'cmd',t:'> Auditing: grep -r "SECRET" src/auth/'},{c:'cmd',t:'> Found: login.ts imports OLD_SECRET_KEY'},{c:'cmd',t:'> Replacing with canonical SECRET_KEY import'},{c:'success',t:'✓ All routes returning 200. Tests green.'},{c:'success',t:'✓ Done. 3 messages. Root cause known in advance.'}]}
+];
+let running=[false,false,false,false];
+function runScenario(idx){
+  if(running[idx])return;running[idx]=true;
+  const panel=document.getElementById('demo-'+idx);
+  const btn=panel.querySelector('.pbtn');
+  btn.disabled=true;btn.textContent='● Running...';
+  const tB=panel.querySelector('.ide.bad .term');
+  const tG=panel.querySelector('.ide.good .term');
+  tB.innerHTML='';tG.innerHTML='';
+  const s=scenarios[idx];
+  s.bad.forEach((l,i)=>{setTimeout(()=>{const el=document.createElement('div');el.className='ln '+l.c;el.textContent=l.t;tB.appendChild(el);tB.scrollTop=tB.scrollHeight},i*360)});
+  s.good.forEach((l,i)=>{setTimeout(()=>{const el=document.createElement('div');el.className='ln '+l.c;el.textContent=l.t;tG.appendChild(el);tG.scrollTop=tG.scrollHeight},600+i*220)});
+  const end=Math.max(s.bad.length*360,600+s.good.length*220)+500;
+  setTimeout(()=>{running[idx]=false;btn.disabled=false;btn.textContent='↻ Replay'},end);
+}
+</script>
+</body>
+</html>
